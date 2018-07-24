@@ -164,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                         LoginActivity.this.startActivity(intent);
+                        LoginActivity.this.finish();
                     } else {
                         authDialog.dismiss();
                         Toast.makeText(LoginActivity.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();

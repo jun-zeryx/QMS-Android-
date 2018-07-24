@@ -20,4 +20,6 @@
     <string name="nric">NRIC</string>
     <string name="re_enter_string_error_incorrect_password">Re-enter password</string>
     <string name="title_activity_register">Register</string>
+    <string name="scan_barcode">SCAN BARCODE</string>
+    <string name="manage_tickets">MANAGE TICKETS</string>
 </resources>
