@@ -9,7 +9,7 @@ public class QMS {
     static public String serverPwd = "zx3356";
 
     /**
-     * Global Variables
+     * Global Variables (User)
      */
     static public Integer uid;
     static public String username;
@@ -17,5 +17,11 @@ public class QMS {
     static public String firstName;
     static public String nric;
 
+    /**
+     * Global Variables (Merchant)
+     */
+    static public Integer mid;
+    static public String merchantUsername;
+    static public String merchantName;
 
 }

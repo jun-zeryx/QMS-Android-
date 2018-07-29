@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class LoginActivity extends AppCompatActivity {
+public class MerchantLoginActivity extends AppCompatActivity {
 
     // UI references.
     private EditText mUserView;
@@ -45,11 +45,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_merchant_login);
         // Set up the login form.
-        mUserView = findViewById(R.id.username);
+        mUserView = findViewById(R.id.merchant_username);
 
-        mPasswordView = findViewById(R.id.password);
+        mPasswordView = findViewById(R.id.merchant_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -61,35 +61,27 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Button mUserLoginButton = findViewById(R.id.user_login_button);
+        Button mUserLoginButton = findViewById(R.id.merchant_login_button);
         mUserLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
-
-        Button registerButton = findViewById(R.id.user_register_button);
-        registerButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goRegister();
-            }
-        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.login_menu, menu);
+        getMenuInflater().inflate(R.menu.merchant_login_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.merchant_login:
-                Intent intent = new Intent(LoginActivity.this, MerchantLoginActivity.class);
-                LoginActivity.this.startActivity(intent);
+            case R.id.user_login:
+                Intent intent = new Intent(MerchantLoginActivity.this, LoginActivity.class);
+                MerchantLoginActivity.this.startActivity(intent);
                 return true;
             default:
 
@@ -144,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isUserValid(String username) {
         //TODO: Replace this with your own logic
-        return username.matches("[a-zA-Z0-9.? ]*");
+        return username.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
@@ -154,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void doLogin(final String username, String password) {
 
-        final ProgressDialog authDialog = new ProgressDialog(LoginActivity.this);
+        final ProgressDialog authDialog = new ProgressDialog(MerchantLoginActivity.this);
         authDialog.setIndeterminate(true);
         authDialog.setMessage("Authenticating...");
         authDialog.show();
@@ -163,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
 
         //String url = "http://zeryx.ddns.net/qms/login";
 
-        String url = String.format("http://%1$slogin?user=%2$s&pass=%3$s", QMS.serverAddress ,username, password);
+        String url = String.format("http://%1$smerchantlogin?user=%2$s&pass=%3$s", QMS.serverAddress ,username, password);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -179,18 +171,16 @@ public class LoginActivity extends AppCompatActivity {
 
                         //Save Login Info
                         JSONObject userInfo = obj.getJSONArray("userInfo").getJSONObject(0);
-                        QMS.uid = userInfo.getInt("u_id");
-                        QMS.username = userInfo.getString("username");
-                        QMS.firstName = userInfo.getString("u_fname");
-                        QMS.lastName = userInfo.getString("u_lname");
-                        QMS.nric = userInfo.getString("u_nric");
+                        QMS.mid = userInfo.getInt("m_id");
+                        QMS.merchantUsername = userInfo.getString("m_username");
+                        QMS.merchantName = userInfo.getString("m_name");
 
-                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                        LoginActivity.this.startActivity(intent);
-                        LoginActivity.this.finish();
+                        Intent intent = new Intent(MerchantLoginActivity.this, MerchantMenuActivity.class);
+                        MerchantLoginActivity.this.startActivity(intent);
+                        MerchantLoginActivity.this.finish();
                     } else {
                         authDialog.dismiss();
-                        Toast.makeText(LoginActivity.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MerchantLoginActivity.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Throwable t) {
@@ -220,9 +210,5 @@ public class LoginActivity extends AppCompatActivity {
         queue.add(postRequest);
     }
 
-    private void goRegister() {
-        Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-        LoginActivity.this.startActivity(intent);
-    }
 }
 

@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">QMS</string>
-    <string name="title_activity_login">Login</string>
+    <string name="title_activity_login">User Login</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Username</string>
@@ -22,4 +22,8 @@
     <string name="title_activity_register">Register</string>
     <string name="scan_barcode">SCAN BARCODE</string>
     <string name="manage_tickets">MANAGE TICKETS</string>
+    <string name="merchant_login">Merchant Login</string>
+    <string name="title_activity_merchant_login">Merchant Login</string>
+    <string name="user_login">User Login</string>
+    <string name="title_activity_merchant_menu">MerchantMenu</string>
 </resources>
