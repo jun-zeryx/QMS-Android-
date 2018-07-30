@@ -4,29 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MerchantMenuActivity">
+    tools:context=".TicketInfoActivity">
 
     <TextView
-        android:id="@+id/queue_default_text"
+        android:id="@+id/merchant_ticket_default_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="@string/no_queues_found"
+        android:text="@string/no_tickets_found"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/queue_refresh_layout"
+        android:id="@+id/merchant_ticket_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     <ListView
-        android:id="@+id/queue_list"
+        android:id="@+id/merchant_ticket_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </ListView>
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="43dp" />
     </android.support.v4.widget.SwipeRefreshLayout>
+
 </android.support.constraint.ConstraintLayout>

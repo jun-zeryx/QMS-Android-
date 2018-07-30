@@ -1,9 +1,9 @@
 package com.example.zeryx.qms;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -26,53 +26,43 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MerchantMenuActivity extends AppCompatActivity {
+public class TicketInfoActivity extends AppCompatActivity {
 
-    private QueueAdapter queueAdapter;
+    public static Integer qid;
+    private MerchantTicketAdapter merchantTicketAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    final ArrayList<QueueDataModel> dataModels = new ArrayList<>();
+    final ArrayList<MerchantTicketDataModel> dataModels = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_merchant_menu);
-        this.setTitle(String.format("Welcome, %1$s",QMS.merchantName));
+        setContentView(R.layout.activity_ticket_info);
+        this.setTitle(String.format("Queue ID: %1$s",TicketInfoActivity.qid));
 
-        getQueueData();
+        getTicketData();
 
+        merchantTicketAdapter = new MerchantTicketAdapter(dataModels,getApplicationContext());
 
+        ListView merchantTicketListView = findViewById(R.id.merchant_ticket_list);
+        merchantTicketListView.setAdapter(merchantTicketAdapter);
 
-        queueAdapter = new QueueAdapter(dataModels,getApplicationContext());
-
-        ListView queueListView = findViewById(R.id.queue_list);
-        queueListView.setAdapter(queueAdapter);
-        queueListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                QueueDataModel dataModel = dataModels.get(position);
-                TicketInfoActivity.qid = dataModel.getQueueID();
-                Intent intent = new Intent(MerchantMenuActivity.this, TicketInfoActivity.class);
-                MerchantMenuActivity.this.startActivity(intent);
-            }
-        });
-
-        mSwipeRefreshLayout = findViewById(R.id.queue_refresh_layout);
+        mSwipeRefreshLayout = findViewById(R.id.merchant_ticket_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getQueueData();
+                getTicketData();
             }
         });
-
     }
 
-    private void getQueueData() {
+    private void getTicketData() {
 
         dataModels.clear();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = String.format("http://%1$sgetqueues?id=%2$s", QMS.serverAddress , QMS.mid);
+        String url = String.format("http://%1$sgettickets?id=%2$s", QMS.serverAddress , TicketInfoActivity.qid);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -85,25 +75,25 @@ public class MerchantMenuActivity extends AppCompatActivity {
 
                     if (obj.getInt("code") == 0) {
                         mSwipeRefreshLayout.setRefreshing(false);
-                        findViewById(R.id.queue_default_text).setVisibility(View.GONE);
+                        findViewById(R.id.merchant_ticket_default_text).setVisibility(View.GONE);
                         //Save Login Info
-                        JSONArray queueData = obj.getJSONArray("queues");
-                        for (int i=0;i<queueData.length();i++){
+                        JSONArray ticketData = obj.getJSONArray("tickets");
+                        for (int i=0;i<ticketData.length();i++){
                             try {
-                                JSONObject queueInfo = queueData.getJSONObject(i);
-                                dataModels.add(new QueueDataModel(queueInfo.getInt("q_id"),queueInfo.getString("q_name")));
-                                queueAdapter.notifyDataSetChanged();
+                                JSONObject ticketInfo = ticketData.getJSONObject(i);
+                                dataModels.add(new MerchantTicketDataModel(ticketInfo.getInt("t_id"),ticketInfo.getInt("u_id")));
+                                merchantTicketAdapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Log.e("QMS", "Invalid Queue JSON");
+                                Log.e("QMS", "Invalid Ticket JSON");
                             }
                         }
                     }
                     else if (obj.getInt("code") == 2) {
-                        Toast.makeText(MerchantMenuActivity.this, "No queues found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TicketInfoActivity.this, "No tickets found", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        Toast.makeText(MerchantMenuActivity.this, "Failed to retrieve queue information", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TicketInfoActivity.this, "Failed to retrieve ticket information", Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Throwable t) {
@@ -132,4 +122,5 @@ public class MerchantMenuActivity extends AppCompatActivity {
         };
         queue.add(postRequest);
     }
+
 }

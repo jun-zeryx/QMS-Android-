@@ -26,4 +26,9 @@
     <string name="title_activity_merchant_login">Merchant Login</string>
     <string name="user_login">User Login</string>
     <string name="title_activity_merchant_menu">MerchantMenu</string>
+    <string name="no_queues_found">No queues found</string>
+    <string name="title_activity_ticket_info">TicketInfoActivity</string>
+    <string name="ticket_id">Ticket ID :</string>
+    <string name="user_id">Customer Name :</string>
+    <string name="no_tickets_found">No tickets found</string>
 </resources>

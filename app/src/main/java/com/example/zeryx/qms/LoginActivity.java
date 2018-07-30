@@ -90,6 +90,7 @@ public class LoginActivity extends AppCompatActivity {
             case R.id.merchant_login:
                 Intent intent = new Intent(LoginActivity.this, MerchantLoginActivity.class);
                 LoginActivity.this.startActivity(intent);
+                LoginActivity.this.finish();
                 return true;
             default:
 

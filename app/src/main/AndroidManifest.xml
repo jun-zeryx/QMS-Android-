@@ -29,7 +29,10 @@
             android:label="@string/title_activity_merchant_login" />
         <activity
             android:name=".MerchantMenuActivity"
-            android:label="@string/title_activity_merchant_menu"></activity>
+            android:label="@string/title_activity_merchant_menu" />
+        <activity
+            android:name=".TicketInfoActivity"
+            android:label="@string/title_activity_ticket_info"></activity>
     </application>
 
 </manifest>
