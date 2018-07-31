@@ -145,7 +145,7 @@ public class MerchantLoginActivity extends AppCompatActivity {
         return password.length() > 2;
     }
 
-    private void doLogin(final String username, String password) {
+    private void doLogin(final String username,final String password) {
 
         final ProgressDialog authDialog = new ProgressDialog(MerchantLoginActivity.this);
         authDialog.setIndeterminate(true);
@@ -171,11 +171,13 @@ public class MerchantLoginActivity extends AppCompatActivity {
                         authDialog.dismiss();
 
                         //Save Login Info
-                        JSONObject userInfo = obj.getJSONArray("userInfo").getJSONObject(0);
-                        QMS.mid = userInfo.getInt("m_id");
-                        QMS.merchantUsername = userInfo.getString("m_username");
-                        QMS.merchantName = userInfo.getString("m_name");
-
+                        JSONObject merchantInfo = obj.getJSONObject("merchantInfo");
+                        QMS.mid = merchantInfo.getInt("m_id");
+                        QMS.merchantUsername = merchantInfo.getString("m_username");
+                        QMS.merchantName = merchantInfo.getString("m_name");
+                        SharedPrefs.getInstance().setDefaults("user",username);
+                        SharedPrefs.getInstance().setDefaults("pass",password);
+                        SharedPrefs.getInstance().setDefaults("type","merchant");
                         Intent intent = new Intent(MerchantLoginActivity.this, MerchantMenuActivity.class);
                         MerchantLoginActivity.this.startActivity(intent);
                         MerchantLoginActivity.this.finish();

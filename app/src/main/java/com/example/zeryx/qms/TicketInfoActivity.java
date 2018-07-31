@@ -6,6 +6,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -29,6 +31,7 @@ import java.util.Map;
 public class TicketInfoActivity extends AppCompatActivity {
 
     public static Integer qid;
+    public static String queueName;
     private MerchantTicketAdapter merchantTicketAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     final ArrayList<MerchantTicketDataModel> dataModels = new ArrayList<>();
@@ -38,7 +41,7 @@ public class TicketInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ticket_info);
-        this.setTitle(String.format("Queue ID: %1$s",TicketInfoActivity.qid));
+        this.setTitle(String.format("Queue: %1$s",TicketInfoActivity.queueName));
 
         getTicketData();
 
@@ -56,13 +59,35 @@ public class TicketInfoActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.ticket_info_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.gen_qr_code:
+                Intent intent = new Intent(TicketInfoActivity.this, QRCodeGenerator.class);
+                intent.putExtra("queueID",TicketInfoActivity.qid);
+                TicketInfoActivity.this.startActivity(intent);
+                return true;
+            default:
+
+                super.onOptionsItemSelected(item);
+
+        }
+        return true;
+    }
+
     private void getTicketData() {
 
         dataModels.clear();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = String.format("http://%1$sgettickets?id=%2$s", QMS.serverAddress , TicketInfoActivity.qid);
+        String url = String.format("http://%1$sgettickets?qid=%2$s", QMS.serverAddress , TicketInfoActivity.qid);
 
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
@@ -73,8 +98,8 @@ public class TicketInfoActivity extends AppCompatActivity {
 
                     JSONObject obj = new JSONObject(response);
 
+                    mSwipeRefreshLayout.setRefreshing(false);
                     if (obj.getInt("code") == 0) {
-                        mSwipeRefreshLayout.setRefreshing(false);
                         findViewById(R.id.merchant_ticket_default_text).setVisibility(View.GONE);
                         //Save Login Info
                         JSONArray ticketData = obj.getJSONArray("tickets");

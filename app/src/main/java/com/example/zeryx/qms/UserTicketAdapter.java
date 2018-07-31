@@ -25,18 +25,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>  {
-
-    private ArrayList<MerchantTicketDataModel> dataSet;
+public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
+    private ArrayList<UserTicketDataModel> dataSet;
     Context mContext;
 
     private static class ViewHolder {
         TextView ticketID;
-        TextView userID;
+        TextView merchantID;
     }
 
-    public MerchantTicketAdapter(ArrayList<MerchantTicketDataModel> data, Context context) {
-        super(context, R.layout.merchant_ticket_row, data);
+    public UserTicketAdapter(ArrayList<UserTicketDataModel> data, Context context) {
+        super(context, R.layout.user_ticket_row, data);
         this.dataSet = data;
         this.mContext = context;
     }
@@ -45,26 +44,26 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        MerchantTicketDataModel dataModel = getItem(position);
-        final ViewHolder viewHolder;
+        UserTicketDataModel dataModel = getItem(position);
+        final UserTicketAdapter.ViewHolder viewHolder;
 
         if (convertView == null) {
-            viewHolder = new ViewHolder();
+            viewHolder = new UserTicketAdapter.ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.merchant_ticket_row,parent,false);
+            convertView = inflater.inflate(R.layout.user_ticket_row,parent,false);
 
-            viewHolder.ticketID = convertView.findViewById(R.id.row_merchant_ticket_id);
-            viewHolder.userID = convertView.findViewById(R.id.row_merchant_ticket_uid);
+            viewHolder.ticketID = convertView.findViewById(R.id.row_user_ticket_id);
+            viewHolder.merchantID = convertView.findViewById(R.id.row_user_ticket_mid);
 
             convertView.setTag(viewHolder);
         }
         else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            viewHolder = (UserTicketAdapter.ViewHolder) convertView.getTag();
         }
 
         RequestQueue queue = Volley.newRequestQueue(mContext);
-        String url = String.format("http://%1$sgetuser?id=%2$s", QMS.serverAddress ,String.valueOf(dataModel.getUserID()));
-        final String[] userNickname = new String[1];
+        String url = String.format("http://%1$sgetqueue?qid=%2$s", QMS.serverAddress ,String.valueOf(dataModel.getQueueID()));
+        final String[] queueName = new String[1];
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -75,12 +74,12 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
                     JSONObject obj = new JSONObject(response);
 
                     if (obj.getInt("code") == 0) {
-                        JSONObject userData = obj.getJSONObject("user");
-                        userNickname[0] = String.format("%1$s %2$s",userData.getString("u_lname"), userData.getString("u_fname"));
-                        viewHolder.userID.setText(userNickname[0]);
+                        JSONObject merchantData = obj.getJSONObject("queue");
+                        queueName[0] = String.format("%1$s",merchantData.getString("q_name"));
+                        viewHolder.merchantID.setText(queueName[0]);
                     }
                     else {
-                        Toast.makeText(mContext, "Unable to retrieve user nickname", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "Unable to retrieve queue name", Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Throwable t) {

@@ -1,8 +1,13 @@
 package com.example.zeryx.qms;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import org.json.JSONArray;
 
-public class QMS {
+public class QMS extends Application {
     /**
      * Server Credentials
      */

@@ -46,6 +46,25 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        this.setTitle("User Login");
+
+        SharedPrefs.getInstance().Initialize(getApplicationContext());
+        if (SharedPrefs.getInstance().checkDefaultExists("user")) {
+            String user = SharedPrefs.getInstance().getDefaults("user");
+            String pass = SharedPrefs.getInstance().getDefaults("pass");
+            String type = SharedPrefs.getInstance().getDefaults("type");
+            Log.d("test user",user);
+            Log.d("test pass",pass);
+            Log.d("test type",type);
+
+            if (type.equals("customer")) {
+                doLogin(user,pass);
+            }
+            else if (type.equals("merchant")) {
+                doMMerchantLogin(user,pass);
+            }
+        }
+
         // Set up the login form.
         mUserView = findViewById(R.id.username);
 
@@ -153,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
         return password.length() > 2;
     }
 
-    private void doLogin(final String username, String password) {
+    private void doLogin(final String username, final String password) {
 
         final ProgressDialog authDialog = new ProgressDialog(LoginActivity.this);
         authDialog.setIndeterminate(true);
@@ -179,14 +198,84 @@ public class LoginActivity extends AppCompatActivity {
                         authDialog.dismiss();
 
                         //Save Login Info
-                        JSONObject userInfo = obj.getJSONArray("userInfo").getJSONObject(0);
+                        JSONObject userInfo = obj.getJSONObject("userInfo");
                         QMS.uid = userInfo.getInt("u_id");
                         QMS.username = userInfo.getString("username");
                         QMS.firstName = userInfo.getString("u_fname");
                         QMS.lastName = userInfo.getString("u_lname");
                         QMS.nric = userInfo.getString("u_nric");
-
+                        SharedPrefs.getInstance().setDefaults("user",username);
+                        SharedPrefs.getInstance().setDefaults("pass",password);
+                        SharedPrefs.getInstance().setDefaults("type","customer");
                         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                        LoginActivity.this.startActivity(intent);
+                        LoginActivity.this.finish();
+                    } else {
+                        authDialog.dismiss();
+                        Toast.makeText(LoginActivity.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Throwable t) {
+                    Log.e("QMS", "Invalid JSON");
+                }
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.getMessage());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = String.format("%1$s:%2$s", QMS.serverID, QMS.serverPwd);
+                String auth = "Basic "
+                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", auth);
+                return headers;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    private void doMMerchantLogin(final String username,final String password) {
+
+        final ProgressDialog authDialog = new ProgressDialog(LoginActivity.this);
+        authDialog.setIndeterminate(true);
+        authDialog.setMessage("Authenticating...");
+        authDialog.show();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        //String url = "http://zeryx.ddns.net/qms/login";
+
+        String url = String.format("http://%1$smerchantlogin?user=%2$s&pass=%3$s", QMS.serverAddress ,username, password);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // Response JSON from server
+                Log.d("QMS", response);
+                try {
+
+                    JSONObject obj = new JSONObject(response);
+
+                    if (obj.getInt("code") == 0) {
+                        authDialog.dismiss();
+
+                        //Save Login Info
+                        JSONObject merchantInfo = obj.getJSONObject("merchantInfo");
+                        QMS.mid = merchantInfo.getInt("m_id");
+                        QMS.merchantUsername = merchantInfo.getString("m_username");
+                        QMS.merchantName = merchantInfo.getString("m_name");
+                        SharedPrefs.getInstance().setDefaults("user",username);
+                        SharedPrefs.getInstance().setDefaults("pass",password);
+                        SharedPrefs.getInstance().setDefaults("type","merchant");
+                        Intent intent = new Intent(LoginActivity.this, MerchantMenuActivity.class);
                         LoginActivity.this.startActivity(intent);
                         LoginActivity.this.finish();
                     } else {
