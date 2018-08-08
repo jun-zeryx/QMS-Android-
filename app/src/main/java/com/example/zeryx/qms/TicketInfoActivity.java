@@ -60,6 +60,12 @@ public class TicketInfoActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        getTicketData();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.ticket_info_menu,menu);
         return true;

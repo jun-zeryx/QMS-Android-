@@ -40,4 +40,6 @@
     <string name="merchant_name">Queue Name :</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="title_activity_scan_qr">Scan</string>
+    <string name="turn_on_flashlight">On</string>
+    <string name="turn_off_flashlight">Off</string>
 </resources>

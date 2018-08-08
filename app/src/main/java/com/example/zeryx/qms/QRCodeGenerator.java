@@ -21,7 +21,7 @@ public class QRCodeGenerator extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrcode_generator);
         queueID = getIntent().getIntExtra("queueID",0);
-        String qrCodeData = String.format("{\"q_id\":\"%1$s\"}",queueID);
+        String qrCodeData = String.format("{\"q_id\":%1$s}",queueID);
         ImageView qrCode = findViewById(R.id.qr_code_image);
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
