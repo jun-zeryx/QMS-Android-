@@ -80,7 +80,6 @@ public class TicketInfoActivity extends AppCompatActivity {
                 TicketInfoActivity.this.startActivity(intent);
                 return true;
             default:
-
                 super.onOptionsItemSelected(item);
 
         }

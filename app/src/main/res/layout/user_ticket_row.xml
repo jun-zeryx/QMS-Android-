@@ -34,4 +34,21 @@
         android:layout_marginTop="44dp"
         android:text="@string/merchant_name" />
 
+    <TextView
+        android:id="@+id/row_user_ticket_waiting_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/row_user_ticket_mid"
+        android:layout_centerHorizontal="true"
+        android:text="Waiting :" />
+
+    <TextView
+        android:id="@+id/row_user_ticket_waiting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/row_user_ticket_mid"
+        android:layout_toEndOf="@+id/row_user_ticket_waiting_header"
+        android:paddingLeft="10dp"
+        android:text="0" />
+
 </RelativeLayout>

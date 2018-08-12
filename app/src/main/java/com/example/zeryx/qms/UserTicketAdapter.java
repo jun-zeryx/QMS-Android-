@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
     private static class ViewHolder {
         TextView ticketID;
         TextView merchantID;
+        TextView waitingQueue;
     }
 
     public UserTicketAdapter(ArrayList<UserTicketDataModel> data, Context context) {
@@ -44,7 +46,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        UserTicketDataModel dataModel = getItem(position);
+        final UserTicketDataModel dataModel = getItem(position);
         final UserTicketAdapter.ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -54,6 +56,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
 
             viewHolder.ticketID = convertView.findViewById(R.id.row_user_ticket_id);
             viewHolder.merchantID = convertView.findViewById(R.id.row_user_ticket_mid);
+            viewHolder.waitingQueue = convertView.findViewById(R.id.row_user_ticket_waiting);
 
             convertView.setTag(viewHolder);
         }
@@ -106,7 +109,56 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
                 return headers;
             }
         };
+
+        String url2 = String.format("http://%1$sgettickets?qid=%2$s", QMS.serverAddress ,String.valueOf(dataModel.getQueueID()));
+        StringRequest postRequest2 = new StringRequest(Request.Method.POST, url2, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // Response JSON from server
+                Log.d("QMS", response);
+                try {
+
+                    JSONObject obj = new JSONObject(response);
+
+                    if (obj.getInt("code") == 0) {
+                        JSONArray arr = obj.getJSONArray("tickets");
+                        for (int i=0;i<arr.length();i++) {
+                            JSONObject arrObj = arr.getJSONObject(i);
+                            if (arrObj.getInt("t_id") == dataModel.getTicketID()) {
+                                viewHolder.waitingQueue.setText(String.valueOf(i));
+                            }
+                        }
+                    }
+                    else {
+                        Toast.makeText(mContext, "Unable to retrieve waiting list", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Throwable t) {
+                    Log.e("QMS", "Invalid JSON");
+                }
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", error.getMessage());
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = String.format("%1$s:%2$s", QMS.serverID, QMS.serverPwd);
+                String auth = "Basic "
+                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", auth);
+                return headers;
+            }
+        };
         queue.add(postRequest);
+        queue.add(postRequest2);
 
         viewHolder.ticketID.setText(String.valueOf(dataModel.getTicketID()));
 
