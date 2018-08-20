@@ -92,7 +92,7 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Log.d("Error.Response", "Unable to connect to server");
                     }
                 })
         {

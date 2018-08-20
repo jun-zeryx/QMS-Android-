@@ -213,7 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Toast.makeText(RegisterActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {

@@ -94,7 +94,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Log.d("Error.Response", "Unable to connect to server");
                     }
                 })
         {
@@ -142,7 +142,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Log.d("Error.Response", "Unable to connect to server");
                     }
                 })
         {

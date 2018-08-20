@@ -168,7 +168,6 @@ public class MerchantLoginActivity extends AppCompatActivity {
                     JSONObject obj = new JSONObject(response);
 
                     if (obj.getInt("code") == 0) {
-                        authDialog.dismiss();
 
                         //Save Login Info
                         JSONObject merchantInfo = obj.getJSONObject("merchantInfo");
@@ -182,20 +181,21 @@ public class MerchantLoginActivity extends AppCompatActivity {
                         MerchantLoginActivity.this.startActivity(intent);
                         MerchantLoginActivity.this.finish();
                     } else {
-                        authDialog.dismiss();
                         Toast.makeText(MerchantLoginActivity.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show();
                     }
 
                 } catch (Throwable t) {
                     Log.e("QMS", "Invalid JSON");
                 }
+                authDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Toast.makeText(MerchantLoginActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
+                        authDialog.dismiss();
                     }
                 })
         {

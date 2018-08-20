@@ -141,7 +141,7 @@ public class MenuActivity extends AppCompatActivity {
                     addTicket(obj.getString("q_id"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e("QMS", "Invalid Ticket JSON");
+                    Log.e("QMS", "Invalid Ticket JSON 1");
                     Toast.makeText(this, "Error occurred, please try again", Toast.LENGTH_SHORT).show();
                 }
 
@@ -170,7 +170,6 @@ public class MenuActivity extends AppCompatActivity {
 
                     JSONObject obj = new JSONObject(response);
 
-                    mSwipeRefreshLayout.setRefreshing(false);
                     if (obj.getInt("code") == 0) {
                         findViewById(R.id.user_ticket_default_text).setVisibility(View.GONE);
                         JSONArray ticketData = obj.getJSONArray("tickets");
@@ -181,7 +180,7 @@ public class MenuActivity extends AppCompatActivity {
                                 userTicketAdapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Log.e("QMS", "Invalid Ticket JSON");
+                                Log.e("QMS", "Invalid Ticket JSON 2");
                             }
                         }
                     }
@@ -195,13 +194,14 @@ public class MenuActivity extends AppCompatActivity {
                 } catch (Throwable t) {
                     Log.e("QMS", "Invalid JSON");
                 }
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Toast.makeText(MenuActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {
@@ -252,7 +252,7 @@ public class MenuActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Toast.makeText(MenuActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {

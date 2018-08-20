@@ -103,7 +103,6 @@ public class TicketInfoActivity extends AppCompatActivity {
 
                     JSONObject obj = new JSONObject(response);
 
-                    mSwipeRefreshLayout.setRefreshing(false);
                     if (obj.getInt("code") == 0) {
                         findViewById(R.id.merchant_ticket_default_text).setVisibility(View.GONE);
                         //Save Login Info
@@ -115,7 +114,7 @@ public class TicketInfoActivity extends AppCompatActivity {
                                 merchantTicketAdapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Log.e("QMS", "Invalid Ticket JSON");
+                                Log.e("QMS", "Invalid Ticket JSON 3");
                             }
                         }
                     }
@@ -129,13 +128,14 @@ public class TicketInfoActivity extends AppCompatActivity {
                 } catch (Throwable t) {
                     Log.e("QMS", "Invalid JSON");
                 }
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", error.getMessage());
+                        Toast.makeText(TicketInfoActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {
