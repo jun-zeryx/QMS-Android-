@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 
 import org.json.JSONArray;
 
-public class QMS extends Application {
+public abstract class QMS extends Application {
     /**
      * Server Credentials
      */

@@ -5,6 +5,12 @@
         android:id="@+id/user_scan_qr"
         android:title="@string/scan_qr_code" />
     <item
+        android:id="@+id/user_edit_profile"
+        android:title="Edit Profile" />
+    <item
+        android:id="@+id/user_change_password"
+        android:title="Change Password" />
+    <item
         android:id="@+id/user_logout"
         android:title="@string/logout" />
 </menu>

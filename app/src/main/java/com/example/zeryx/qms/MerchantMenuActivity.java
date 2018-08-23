@@ -1,5 +1,6 @@
 package com.example.zeryx.qms;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -44,11 +45,9 @@ public class MerchantMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_merchant_menu);
         this.setTitle(String.format("Welcome, %1$s",QMS.merchantName));
 
-        getQueueData();
-
-
-
         queueAdapter = new QueueAdapter(dataModels,getApplicationContext());
+
+        getQueueData();
 
         ListView queueListView = findViewById(R.id.queue_list);
         queueListView.setAdapter(queueAdapter);
@@ -124,7 +123,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
 
                 alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-
+                        Toast.makeText(MerchantMenuActivity.this, "Cancelled", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -133,10 +132,8 @@ public class MerchantMenuActivity extends AppCompatActivity {
             case R.id.merchant_logout:
                 SharedPrefs.getInstance().clearAllDefaults();
                 Intent intent = new Intent(MerchantMenuActivity.this,LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                finishAffinity();
                 MerchantMenuActivity.this.startActivity(intent);
-                finish();
                 return true;
             default:
 
@@ -148,7 +145,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
 
     private void getQueueData() {
 
-        dataModels.clear();
+        queueAdapter.clear();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -170,7 +167,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
                         for (int i=0;i<queueData.length();i++){
                             try {
                                 JSONObject queueInfo = queueData.getJSONObject(i);
-                                dataModels.add(new QueueDataModel(queueInfo.getInt("q_id"),queueInfo.getString("q_name")));
+                                queueAdapter.add(new QueueDataModel(queueInfo.getInt("q_id"),queueInfo.getString("q_name")));
                                 queueAdapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -180,6 +177,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
                     }
                     else if (obj.getInt("code") == 2) {
                         Toast.makeText(MerchantMenuActivity.this, "No queues found", Toast.LENGTH_SHORT).show();
+                        findViewById(R.id.queue_default_text).setVisibility(View.VISIBLE);
                     }
                     else {
                         Toast.makeText(MerchantMenuActivity.this, "Failed to retrieve queue information", Toast.LENGTH_SHORT).show();
@@ -261,6 +259,12 @@ public class MerchantMenuActivity extends AppCompatActivity {
     }
 
     public void deleteQueue(Integer queueID) {
+
+        final ProgressDialog deleteDialog = new ProgressDialog(MerchantMenuActivity.this);
+        deleteDialog.setIndeterminate(true);
+        deleteDialog.setMessage("Deleting Queue...");
+        deleteDialog.show();
+
         RequestQueue queue = Volley.newRequestQueue(this);
 
         String url = String.format("http://%1$sdeletequeue?qid=%2$s", QMS.serverAddress , queueID);
@@ -284,6 +288,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
                 } catch (Throwable t) {
                     Log.e("QMS", "Invalid JSON");
                 }
+                deleteDialog.dismiss();
             }
         },
                 new Response.ErrorListener() {
@@ -291,6 +296,7 @@ public class MerchantMenuActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Toast.makeText(MerchantMenuActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
+                        deleteDialog.dismiss();
                     }
                 })
         {

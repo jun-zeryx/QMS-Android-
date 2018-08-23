@@ -21,6 +21,9 @@ public class QRCodeGenerator extends Activity {
     Integer queueID;
     JSONObject qrData;
 
+    private static final int WHITE = 0xFFFFFFFF;
+    private static final int BLACK = 0xFF000000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +31,7 @@ public class QRCodeGenerator extends Activity {
         generateQR();
 
         final Handler handler = new Handler();
-        final int delay = 10000; //milliseconds
+        final int delay = 5000; //milliseconds
 
         handler.postDelayed(new Runnable(){
             public void run(){
@@ -45,7 +48,7 @@ public class QRCodeGenerator extends Activity {
 
         try {
             qrData.put("q_id",queueID);
-            qrData.put("timestamp", System.currentTimeMillis() / 1000);
+            qrData.put("timestamp", System.currentTimeMillis());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -56,9 +59,20 @@ public class QRCodeGenerator extends Activity {
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
         try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(qrDataString, BarcodeFormat.QR_CODE,500,500);
+            BitMatrix bitMatrix = multiFormatWriter.encode(qrDataString, BarcodeFormat.QR_CODE,1000,1000);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+
+            int width = bitMatrix.getWidth();
+            int height = bitMatrix.getHeight();
+            int[] pixels = new int[width * height];
+            for (int y = 0; y < height; y++) {
+                int offset = y * width;
+                for (int x = 0; x < width; x++) pixels[offset + x] = bitMatrix.get(x, y) ? BLACK : WHITE;
+            }
+
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            bitmap.setConfig(Bitmap.Config.ARGB_8888);
+            bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
             qrCode.setImageBitmap(bitmap);
         }
         catch (WriterException e) {

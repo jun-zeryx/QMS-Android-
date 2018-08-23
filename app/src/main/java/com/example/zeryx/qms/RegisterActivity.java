@@ -110,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
             firstNameView.setError("First name cannot be empty");
             focusView = firstNameView;
             cancel = true;
-        } else if (!isUserValid(lastname)) {
+        } else if (!isUserValid(firstname)) {
             firstNameView.setError("This name is invalid");
             focusView = firstNameView;
             cancel = true;
@@ -161,12 +161,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean isUserValid(String username) {
-        //TODO: Replace this with your own logic
         return username.matches("[a-zA-Z0-9.? ]*");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 2;
     }
 

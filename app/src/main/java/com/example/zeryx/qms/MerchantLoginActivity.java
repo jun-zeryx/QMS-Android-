@@ -136,12 +136,10 @@ public class MerchantLoginActivity extends AppCompatActivity {
     }
 
     private boolean isUserValid(String username) {
-        //TODO: Replace this with your own logic
         return username.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 2;
     }
 

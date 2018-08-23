@@ -1,5 +1,6 @@
 package com.example.zeryx.qms;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -46,9 +47,6 @@ public class MenuActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
-        this.setTitle(String.format("Welcome, %1$s %2$s",QMS.lastName,QMS.firstName));
-
-        getTicketData();
 
         qrScan = new IntentIntegrator(this);
         qrScan.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
@@ -74,7 +72,6 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 final UserTicketDataModel dataModel = dataModels.get(position);
-                //Toast.makeText(MenuActivity.this, String.valueOf(dataModel.getTicketID()),Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -91,7 +88,7 @@ public class MenuActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                //deleteQueue(dataModel.getQueueID());
+                                deleteTicket(dataModel.getTicketID());
                         }
                     }
                 });
@@ -99,6 +96,13 @@ public class MenuActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        this.setTitle(String.format("Welcome, %1$s %2$s",QMS.firstName,QMS.lastName));
+        getTicketData();
+        super.onResume();
     }
 
     @Override
@@ -116,10 +120,16 @@ public class MenuActivity extends AppCompatActivity {
             case R.id.user_logout:
                 SharedPrefs.getInstance().clearAllDefaults();
                 Intent intent = new Intent(MenuActivity.this,LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                finishAffinity();
                 MenuActivity.this.startActivity(intent);
-                finish();
+                return true;
+            case R.id.user_edit_profile:
+                intent = new Intent(MenuActivity.this,UserInfoActivity.class);
+                MenuActivity.this.startActivity(intent);
+                return true;
+            case R.id.user_change_password:
+                intent = new Intent(MenuActivity.this,UserChangePwdActivity.class);
+                MenuActivity.this.startActivity(intent);
                 return true;
             default:
                 super.onOptionsItemSelected(item);
@@ -138,7 +148,12 @@ public class MenuActivity extends AppCompatActivity {
             } else {
                 try {
                     JSONObject obj = new JSONObject(result.getContents());
-                    addTicket(obj.getString("q_id"));
+                    if (System.currentTimeMillis() - obj.getDouble("timestamp") <= 5000) {
+                        addTicket(obj.getString("q_id"));
+                    }
+                    else {
+                        Toast.makeText(this, "Expired QR Code", Toast.LENGTH_SHORT).show();
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e("QMS", "Invalid Ticket JSON 1");
@@ -155,7 +170,7 @@ public class MenuActivity extends AppCompatActivity {
 
     private void getTicketData() {
 
-        dataModels.clear();
+        userTicketAdapter.clear();
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -176,7 +191,7 @@ public class MenuActivity extends AppCompatActivity {
                         for (int i=0;i<ticketData.length();i++){
                             try {
                                 JSONObject ticketInfo = ticketData.getJSONObject(i);
-                                dataModels.add(new UserTicketDataModel(ticketInfo.getInt("t_id"),ticketInfo.getInt("q_id")));
+                                userTicketAdapter.add(new UserTicketDataModel(ticketInfo.getInt("t_id"),ticketInfo.getInt("q_id")));
                                 userTicketAdapter.notifyDataSetChanged();
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -186,6 +201,7 @@ public class MenuActivity extends AppCompatActivity {
                     }
                     else if (obj.getInt("code") == 2) {
                         Toast.makeText(MenuActivity.this, "No tickets found", Toast.LENGTH_SHORT).show();
+                        findViewById(R.id.user_ticket_default_text).setVisibility(View.VISIBLE);
                     }
                     else {
                         Toast.makeText(MenuActivity.this, "Failed to retrieve ticket information", Toast.LENGTH_SHORT).show();
@@ -253,6 +269,64 @@ public class MenuActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         // error
                         Toast.makeText(MenuActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
+                    }
+                })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                String credentials = String.format("%1$s:%2$s", QMS.serverID, QMS.serverPwd);
+                String auth = "Basic "
+                        + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+                headers.put("Content-Type", "application/json");
+                headers.put("Authorization", auth);
+                return headers;
+            }
+        };
+        queue.add(postRequest);
+    }
+
+    private void deleteTicket(Integer tid) {
+
+        final ProgressDialog deleteDialog = new ProgressDialog(MenuActivity.this);
+        deleteDialog.setIndeterminate(true);
+        deleteDialog.setMessage("Deleting Ticket...");
+        deleteDialog.show();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        String url = String.format("http://%1$sprocessticket?tid=%2$s", QMS.serverAddress ,tid);
+
+        StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // Response JSON from server
+                Log.d("QMS", response);
+                try {
+
+                    JSONObject obj = new JSONObject(response);
+
+                    mSwipeRefreshLayout.setRefreshing(false);
+                    if (obj.getInt("code") == 0) {
+                        Toast.makeText(MenuActivity.this, "Successfully deleted a ticket", Toast.LENGTH_SHORT).show();
+                        getTicketData();
+                    }
+                    else {
+                        Toast.makeText(MenuActivity.this, "Failed to delete ticket", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Throwable t) {
+                    Log.e("QMS", "Invalid JSON");
+                }
+                deleteDialog.dismiss();
+            }
+        },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Toast.makeText(MenuActivity.this, "Unable to connect to server", Toast.LENGTH_SHORT).show();
+                        deleteDialog.dismiss();
                     }
                 })
         {
