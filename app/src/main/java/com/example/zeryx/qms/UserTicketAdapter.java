@@ -1,5 +1,6 @@
 package com.example.zeryx.qms;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,9 +23,12 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
     private ArrayList<UserTicketDataModel> dataSet;
@@ -94,7 +98,7 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", "Unable to connect to server");
+                        Toast.makeText(mContext, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {
@@ -125,7 +129,16 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
                         for (int i=0;i<arr.length();i++) {
                             JSONObject arrObj = arr.getJSONObject(i);
                             if (arrObj.getInt("t_id") == dataModel.getTicketID()) {
-                                viewHolder.waitingQueue.setText(String.valueOf(i));
+                                viewHolder.waitingQueue.setText(String.format("%s person(s)",String.valueOf(i + 1)));
+                                @SuppressLint("SimpleDateFormat") SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                                try {
+                                    Date ticketDate = dateFormat.parse(arrObj.getString("created_at"));
+                                    Date currentDate = new Date();
+                                    long waitDuration = currentDate.getTime() - ticketDate.getTime();
+                                    viewHolder.ticketID.setText(String.format("%s minute(s)",String.valueOf(TimeUnit.MILLISECONDS.toMinutes(waitDuration))));
+                                } catch (Throwable t) {
+                                    Log.e("QMS", "Invalid Date");
+                                }
                             }
                         }
                     }
@@ -159,8 +172,6 @@ public class UserTicketAdapter extends ArrayAdapter<UserTicketDataModel> {
         };
         queue.add(postRequest);
         queue.add(postRequest2);
-
-        viewHolder.ticketID.setText(String.valueOf(dataModel.getTicketID()));
 
 
         return convertView;

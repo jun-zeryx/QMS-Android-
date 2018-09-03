@@ -23,7 +23,7 @@
         android:id="@+id/row_user_ticket_id_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/ticket_id" />
+        android:text="You have waited :" />
 
     <TextView
         android:id="@+id/row_user_ticket_mid_header"

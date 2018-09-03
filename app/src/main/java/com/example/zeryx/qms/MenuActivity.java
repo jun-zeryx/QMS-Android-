@@ -3,6 +3,7 @@ package com.example.zeryx.qms;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,9 +32,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MenuActivity extends AppCompatActivity {
 
@@ -60,6 +64,17 @@ public class MenuActivity extends AppCompatActivity {
         ListView userTicketListView = findViewById(R.id.user_ticket_list);
         userTicketListView.setAdapter(userTicketAdapter);
 
+        final Handler handler = new Handler();
+        final int delay = 60000; //milliseconds
+
+        handler.postDelayed(new Runnable(){
+            public void run(){
+                mSwipeRefreshLayout.setRefreshing(true);
+                getTicketData();
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
+
         mSwipeRefreshLayout = findViewById(R.id.user_ticket_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -82,7 +97,7 @@ public class MenuActivity extends AppCompatActivity {
                 CharSequence options[] = new CharSequence[] {"Delete Ticket"};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MenuActivity.this);
-                builder.setTitle(String.valueOf(dataModel.getTicketID()));
+                builder.setTitle("What would you like to do?");
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -100,9 +115,9 @@ public class MenuActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        super.onResume();
         this.setTitle(String.format("Welcome, %1$s %2$s",QMS.firstName,QMS.lastName));
         getTicketData();
-        super.onResume();
     }
 
     @Override
@@ -147,7 +162,9 @@ public class MenuActivity extends AppCompatActivity {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
             } else {
                 try {
-                    JSONObject obj = new JSONObject(result.getContents());
+                    byte[] qrData = Base64.decode(result.getContents(),Base64.DEFAULT);
+                    String qrString = new String(qrData,"UTF-8");
+                    JSONObject obj = new JSONObject(qrString);
                     if (System.currentTimeMillis() - obj.getDouble("timestamp") <= 5000) {
                         addTicket(obj.getString("q_id"));
                     }
@@ -158,6 +175,8 @@ public class MenuActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Log.e("QMS", "Invalid Ticket JSON 1");
                     Toast.makeText(this, "Error occurred, please try again", Toast.LENGTH_SHORT).show();
+                } catch (UnsupportedEncodingException e) {
+                    Log.e("QMS", "Invalid QR Data");
                 }
 
             }
@@ -232,6 +251,7 @@ public class MenuActivity extends AppCompatActivity {
                 return headers;
             }
         };
+        userTicketAdapter.clear();
         queue.add(postRequest);
     }
 
@@ -253,7 +273,6 @@ public class MenuActivity extends AppCompatActivity {
                     mSwipeRefreshLayout.setRefreshing(false);
                     if (obj.getInt("code") == 0) {
                         Toast.makeText(MenuActivity.this, "Successfully entered into a queue", Toast.LENGTH_SHORT).show();
-                        getTicketData();
                     }
                     else {
                         Toast.makeText(MenuActivity.this, "Failed to enter into a queue", Toast.LENGTH_SHORT).show();

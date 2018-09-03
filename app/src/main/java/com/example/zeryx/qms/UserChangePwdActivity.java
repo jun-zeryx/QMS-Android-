@@ -36,6 +36,7 @@ public class UserChangePwdActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_change_pwd);
+        setTitle("Change Password");
 
         oldPasswordView = findViewById(R.id.user_change_password_oldpass);
         passwordView = findViewById(R.id.user_change_password);

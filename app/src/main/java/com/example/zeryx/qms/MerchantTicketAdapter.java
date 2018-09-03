@@ -64,7 +64,6 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
 
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = String.format("http://%1$sgetuser?id=%2$s", QMS.serverAddress ,String.valueOf(dataModel.getUserID()));
-        final String[] userNickname = new String[1];
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
@@ -76,8 +75,10 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
 
                     if (obj.getInt("code") == 0) {
                         JSONObject userData = obj.getJSONObject("user");
-                        userNickname[0] = String.format("%1$s %2$s",userData.getString("u_lname"), userData.getString("u_fname"));
-                        viewHolder.userID.setText(userNickname[0]);
+                        String userNickname = String.format("%1$s %2$s",userData.getString("u_lname"), userData.getString("u_fname"));
+                        viewHolder.userID.setText(userNickname);
+                        String userNric = userData.getString("u_nric");
+                        viewHolder.ticketID.setText(userNric);
                     }
                     else {
                         Toast.makeText(mContext, "Unable to retrieve user nickname", Toast.LENGTH_SHORT).show();
@@ -92,7 +93,7 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         // error
-                        Log.d("Error.Response", "Unable to connect to server");
+                        Toast.makeText(mContext, "Unable to connect to server", Toast.LENGTH_SHORT).show();
                     }
                 })
         {
@@ -108,9 +109,6 @@ public class MerchantTicketAdapter extends ArrayAdapter<MerchantTicketDataModel>
             }
         };
         queue.add(postRequest);
-
-        viewHolder.ticketID.setText(String.valueOf(dataModel.getTicketID()));
-
 
         return convertView;
 

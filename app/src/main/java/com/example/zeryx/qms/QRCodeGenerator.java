@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Handler;
+import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.google.zxing.BarcodeFormat;
@@ -14,6 +16,8 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 public class QRCodeGenerator extends Activity {
 
@@ -53,13 +57,17 @@ public class QRCodeGenerator extends Activity {
             e.printStackTrace();
         }
 
+ 
         String qrDataString = String.valueOf(qrData);
 
         ImageView qrCode = findViewById(R.id.qr_code_image);
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 
         try {
-            BitMatrix bitMatrix = multiFormatWriter.encode(qrDataString, BarcodeFormat.QR_CODE,1000,1000);
+            byte[] base64data = qrDataString.getBytes("UTF-8");
+            String base64string = Base64.encodeToString(base64data, Base64.DEFAULT);
+
+            BitMatrix bitMatrix = multiFormatWriter.encode(base64string, BarcodeFormat.QR_CODE,1000,1000);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
 
             int width = bitMatrix.getWidth();
@@ -77,6 +85,9 @@ public class QRCodeGenerator extends Activity {
         }
         catch (WriterException e) {
             e.printStackTrace();
+        }
+        catch (UnsupportedEncodingException e) {
+            Log.e("QMS", "Invalid QR Data");
         }
     }
 

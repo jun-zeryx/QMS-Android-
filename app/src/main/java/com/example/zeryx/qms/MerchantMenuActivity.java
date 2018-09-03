@@ -47,8 +47,6 @@ public class MerchantMenuActivity extends AppCompatActivity {
 
         queueAdapter = new QueueAdapter(dataModels,getApplicationContext());
 
-        getQueueData();
-
         ListView queueListView = findViewById(R.id.queue_list);
         queueListView.setAdapter(queueAdapter);
         queueListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -91,6 +89,13 @@ public class MerchantMenuActivity extends AppCompatActivity {
                 getQueueData();
             }
         });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getQueueData();
 
     }
 

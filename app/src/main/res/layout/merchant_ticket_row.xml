@@ -24,7 +24,7 @@
         android:id="@+id/row_merchant_ticket_id_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/ticket_id" />
+        android:text="Customer NRIC :" />
 
     <TextView
         android:id="@+id/row_merchant_ticket_uid_header"
