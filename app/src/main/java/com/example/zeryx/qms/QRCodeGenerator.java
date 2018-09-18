@@ -57,7 +57,7 @@ public class QRCodeGenerator extends Activity {
             e.printStackTrace();
         }
 
- 
+
         String qrDataString = String.valueOf(qrData);
 
         ImageView qrCode = findViewById(R.id.qr_code_image);
@@ -88,6 +88,21 @@ public class QRCodeGenerator extends Activity {
         }
         catch (UnsupportedEncodingException e) {
             Log.e("QMS", "Invalid QR Data");
+        }
+    }
+
+    private void blinkQR() {
+        ImageView qrCode = findViewById(R.id.qr_code_image);
+
+        qrCode.buildDrawingCache();
+        Bitmap bitmap = qrCode.getDrawingCache();
+
+        int width = qrCode.getWidth();
+        int height = qrCode.getHeight();
+        int[] pixels = new int[width * height];
+        for (int y = 0; y < height; y++) {
+            int offset = y * width;
+            //for (int x = 0; x < width; x++) pixels[offset + x] = bitmap.getPixel(x,y) ? BLACK : WHITE;
         }
     }
 
