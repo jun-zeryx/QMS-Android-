@@ -6,7 +6,10 @@ import android.app.Activity;
 import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -43,6 +46,16 @@ public class QRCodeGenerator extends Activity {
                 handler.postDelayed(this, delay);
             }
         }, delay);
+
+        final Handler hideQR = new Handler();
+        final int qrBlinkRate = 100; //milliseconds
+
+        hideQR.postDelayed(new Runnable(){
+            public void run(){
+                blinkQR();
+                hideQR.postDelayed(this, qrBlinkRate);
+            }
+        }, qrBlinkRate);
 
     }
 
@@ -92,18 +105,13 @@ public class QRCodeGenerator extends Activity {
     }
 
     private void blinkQR() {
-        ImageView qrCode = findViewById(R.id.qr_code_image);
+        TextView qr1 = findViewById(R.id.qrPart1);
 
-        qrCode.buildDrawingCache();
-        Bitmap bitmap = qrCode.getDrawingCache();
-
-        int width = qrCode.getWidth();
-        int height = qrCode.getHeight();
-        int[] pixels = new int[width * height];
-        for (int y = 0; y < height; y++) {
-            int offset = y * width;
-            //for (int x = 0; x < width; x++) pixels[offset + x] = bitmap.getPixel(x,y) ? BLACK : WHITE;
+        if (qr1.getVisibility() == View.INVISIBLE) {
+            qr1.setVisibility(View.VISIBLE);
+        }
+        else {
+            qr1.setVisibility(View.INVISIBLE);
         }
     }
-
 }

@@ -12,8 +12,8 @@ public abstract class QMS extends Application {
      * Server Credentials
      */
     static public String serverAddress = "qms-fyp.ddns.net/qms/";
-    static public String serverID = "gaia";
-    static public String serverPwd = "zx3356";
+    static public String serverID = "android";
+    static public String serverPwd = "eM6uvh444DBtEcWv";
 
     /**
      * Global Variables (User)
