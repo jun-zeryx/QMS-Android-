@@ -136,7 +136,7 @@ public class MerchantLoginActivity extends AppCompatActivity {
     }
 
     private boolean isUserValid(String username) {
-        return username.contains("@");
+        return username.contains("\"/[\\u2190-\\u21FF]|[\\u2600-\\u26FF]|[\\u2700-\\u27BF]|[\\u3000-\\u303F]|[\\u1F300-\\u1F64F]|[\\u1F680-\\u1F6FF]/g\"");
     }
 
     private boolean isPasswordValid(String password) {
